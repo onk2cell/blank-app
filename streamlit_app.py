@@ -67,11 +67,29 @@ with tab2:
     fig = px.treemap(device_usage, path=[device_usage.index], values=device_usage.values, title="Transaction Volume by Device")
     st.plotly_chart(fig, use_container_width=True)
 
+import statsmodels.api as sm
+
 with tab3:
     st.subheader("Card Activity")
+    
+    # Group by masked_card_no and get top 10 cards
     top_cards = filtered_df.groupby('masked_card_no').agg({'occurrences': 'sum', 'total_amount': 'sum'}).nlargest(10, 'occurrences')
-    fig = px.scatter(top_cards, x='total_amount', y='occurrences', size='total_amount', color=top_cards.index, title="Top Cards: Frequency vs Amount")
+    
+    # Scatter plot with regression line
+    fig = px.scatter(
+        top_cards, x='total_amount', y='occurrences', size='total_amount', color=top_cards.index,
+        title="Top Cards: Frequency vs Amount",
+        trendline="ols"  # Ordinary Least Squares (Linear Regression)
+    )
+    
     st.plotly_chart(fig, use_container_width=True)
+
+    # Display regression summary
+    X = sm.add_constant(top_cards['total_amount'])  # Add constant for intercept
+    y = top_cards['occurrences']
+    model = sm.OLS(y, X).fit()
+    st.text("Regression Summary:")
+    st.text(model.summary())
 
 with tab4:
     st.subheader("Transaction Data")
