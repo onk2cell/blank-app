@@ -100,7 +100,7 @@ with tab3:
 
     # Clustering (KMeans)
     X = selected_cards[['occurrences', 'total_amount']]  # Selecting the features for clustering
-    kmeans = KMeans(n_clusters=3, random_state=42)  # Choose the number of clusters (e.g., 3 clusters)
+    kmeans = KMeans(n_clusters=7, random_state=42)  # Choose the number of clusters (e.g., 3 clusters)
     selected_cards['cluster'] = kmeans.fit_predict(X)  # Fit and predict clusters
 
     # Scatter plot with clusters
