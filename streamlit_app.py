@@ -88,16 +88,16 @@ with tab3:
         value=10
     )
 
-    # Group by masked_card_no and aggregate occurrences and total_amount
-    card_activity = filtered_cards.groupby('masked_card_no').agg({'occurrences': 'sum', 'total_amount': 'sum'})
+    # Group by masked_card_no and merchant_name to aggregate occurrences and total_amount
+    card_activity = filtered_cards.groupby(['masked_card_no', 'merchant_name']).agg({'occurrences': 'sum', 'total_amount': 'sum'}).reset_index()
 
     # Sort and select the cards based on the number of occurrences
     selected_cards = card_activity.nlargest(num_cards_to_show, 'occurrences')
 
     # Scatter plot with regression line
     fig = px.scatter(
-        selected_cards, x='total_amount', y='occurrences', size='total_amount', color=selected_cards.index,
-        title=f"Cards: Frequency vs Amount max cards = {distinct_cards_count}",
+        selected_cards, x='total_amount', y='occurrences', size='total_amount', color='merchant_name',
+        title=f"Cards: Frequency vs Amount (max cards = {distinct_cards_count})",
         trendline="ols"  # Ordinary Least Squares (Linear Regression)
     )
     
