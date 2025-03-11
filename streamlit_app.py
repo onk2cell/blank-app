@@ -84,12 +84,12 @@ with tab3:
     
     st.plotly_chart(fig, use_container_width=True)
 
-    # Display regression summary
-    X = sm.add_constant(top_cards['total_amount'])  # Add constant for intercept
-    y = top_cards['occurrences']
-    model = sm.OLS(y, X).fit()
-    st.text("Regression Summary:")
-    st.text(model.summary())
+    # # Display regression summary
+    # X = sm.add_constant(top_cards['total_amount'])  # Add constant for intercept
+    # y = top_cards['occurrences']
+    # model = sm.OLS(y, X).fit()
+    # st.text("Regression Summary:")
+    # st.text(model.summary())
 
 with tab4:
     st.subheader("Transaction Data")
