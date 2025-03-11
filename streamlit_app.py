@@ -76,15 +76,3 @@ with tab3:
 with tab4:
     st.subheader("Transaction Data")
     st.dataframe(filtered_df.sort_values('total_amount', ascending=False))
-
-# Insights Section
-st.header("🔑 Key Insights")
-insights = f"""
-1. **Dominant Merchants**: The top merchants account for **{(df.groupby('merchant_name')['total_amount'].sum().nlargest(5).sum() / df['total_amount'].sum()) * 100:.1f}%** of the total revenue.
-2. **High-Value Transactions**: Transactions exceeding $5,000 are frequent in some merchants.
-3. **Device Usage**: The most used device is **{filtered_df['device_name'].mode()[0]}**.
-4. **Card Patterns**: The most used card ends in **{filtered_df['masked_card_no'].mode()[0][-4:]}**.
-5. **Revenue Concentration**: **{len(filtered_df['merchant_name'].unique())}** merchants contributed to transactions, but the top **5** account for a majority of revenue.
-"""
-
-st.write(insights)
