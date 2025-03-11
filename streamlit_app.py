@@ -97,7 +97,7 @@ with tab3:
     # Scatter plot with regression line
     fig = px.scatter(
         selected_cards, x='total_amount', y='occurrences', size='total_amount', color=selected_cards.index,
-        title="Cards: Frequency vs Amount",
+        title=f"Cards: Frequency vs Amount max cards = {distinct_cards_count}",
         trendline="ols"  # Ordinary Least Squares (Linear Regression)
     )
     
