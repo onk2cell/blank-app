@@ -70,11 +70,19 @@ with tab2:
 import statsmodels.api as sm
 
 with tab3:
-    st.subheader("Card Activity")
+    # Get the selected merchants and display them in the title
+    selected_merchants_str = ', '.join(selected_merchant) if selected_merchant else "All Merchants"
+    st.subheader(f"Card Activity for {selected_merchants_str}")
     
-    # Group by masked_card_no and get top 10 cards
-    top_cards = filtered_df.groupby('masked_card_no').agg({'occurrences': 'sum', 'total_amount': 'sum'}).nlargest(10, 'occurrences')
-    
+    # Add a slider for the user to select how many cards to display
+    num_cards_to_show = st.slider("Select number of cards to display", min_value=10, max_value=100, value=10)
+
+    # Group by masked_card_no and aggregate occurrences and total_amount
+    card_activity = filtered_df.groupby('masked_card_no').agg({'occurrences': 'sum', 'total_amount': 'sum'})
+
+    # Sort and select the top cards based on the number of occurrences
+    top_cards = card_activity.nlargest(num_cards_to_show, 'occurrences')
+
     # Scatter plot with regression line
     fig = px.scatter(
         top_cards, x='total_amount', y='occurrences', size='total_amount', color=top_cards.index,
@@ -83,6 +91,13 @@ with tab3:
     )
     
     st.plotly_chart(fig, use_container_width=True)
+
+    # # Display regression summary
+    # X = sm.add_constant(top_cards['total_amount'])  # Add constant for intercept
+    # y = top_cards['occurrences']
+    # model = sm.OLS(y, X).fit()
+    # st.text("Regression Summary:")
+    # st.text(model.summary())
 
     # # Display regression summary
     # X = sm.add_constant(top_cards['total_amount'])  # Add constant for intercept
