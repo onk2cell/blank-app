@@ -101,27 +101,12 @@ with tab3:
         trendline="ols"  # Ordinary Least Squares (Linear Regression)
     )
     
-    st.plotly_chart(fig, use_container_width=True)
+    # Provide a unique key for the plotly_chart
+    st.plotly_chart(fig, use_container_width=True, key=f"card_activity_{selected_merchant}")
 
     # # Display regression summary
     # X = sm.add_constant(selected_cards['total_amount'])  # Add constant for intercept
     # y = selected_cards['occurrences']
-    # model = sm.OLS(y, X).fit()
-    # st.text("Regression Summary:")
-    # st.text(model.summary())
-
-    st.plotly_chart(fig, use_container_width=True)
-
-    # # Display regression summary
-    # X = sm.add_constant(top_cards['total_amount'])  # Add constant for intercept
-    # y = top_cards['occurrences']
-    # model = sm.OLS(y, X).fit()
-    # st.text("Regression Summary:")
-    # st.text(model.summary())
-
-    # # Display regression summary
-    # X = sm.add_constant(top_cards['total_amount'])  # Add constant for intercept
-    # y = top_cards['occurrences']
     # model = sm.OLS(y, X).fit()
     # st.text("Regression Summary:")
     # st.text(model.summary())
