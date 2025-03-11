@@ -74,22 +74,42 @@ with tab3:
     selected_merchants_str = ', '.join(selected_merchant) if selected_merchant else "All Merchants"
     st.subheader(f"Card Activity for {selected_merchants_str}")
     
-    # Add a slider for the user to select how many cards to display
-    num_cards_to_show = st.slider("Select number of cards to display", min_value=10, max_value=100, value=10)
+    # Filter the data based on the selected merchants
+    filtered_cards = filtered_df[filtered_df['merchant_name'].isin(selected_merchant)] if selected_merchant else filtered_df
+
+    # Calculate the number of distinct cards for the selected merchants
+    distinct_cards_count = filtered_cards['masked_card_no'].nunique()
+
+    # Add an input field for the user to specify the number of cards to display
+    num_cards_to_show = st.number_input(
+        "Enter number of cards to display",
+        min_value=1, 
+        max_value=distinct_cards_count,  # Set max_value to the number of distinct cards
+        value=10
+    )
 
     # Group by masked_card_no and aggregate occurrences and total_amount
-    card_activity = filtered_df.groupby('masked_card_no').agg({'occurrences': 'sum', 'total_amount': 'sum'})
+    card_activity = filtered_cards.groupby('masked_card_no').agg({'occurrences': 'sum', 'total_amount': 'sum'})
 
-    # Sort and select the top cards based on the number of occurrences
-    top_cards = card_activity.nlargest(num_cards_to_show, 'occurrences')
+    # Sort and select the cards based on the number of occurrences
+    selected_cards = card_activity.nlargest(num_cards_to_show, 'occurrences')
 
     # Scatter plot with regression line
     fig = px.scatter(
-        top_cards, x='total_amount', y='occurrences', size='total_amount', color=top_cards.index,
-        title="Top Cards: Frequency vs Amount",
+        selected_cards, x='total_amount', y='occurrences', size='total_amount', color=selected_cards.index,
+        title="Cards: Frequency vs Amount",
         trendline="ols"  # Ordinary Least Squares (Linear Regression)
     )
     
+    st.plotly_chart(fig, use_container_width=True)
+
+    # # Display regression summary
+    # X = sm.add_constant(selected_cards['total_amount'])  # Add constant for intercept
+    # y = selected_cards['occurrences']
+    # model = sm.OLS(y, X).fit()
+    # st.text("Regression Summary:")
+    # st.text(model.summary())
+
     st.plotly_chart(fig, use_container_width=True)
 
     # # Display regression summary
