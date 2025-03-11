@@ -68,6 +68,10 @@ with tab2:
     st.plotly_chart(fig, use_container_width=True)
 
 import statsmodels.api as sm
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+from sklearn.cluster import KMeans
 
 with tab3:
     # Get the selected merchants and display them in the title
@@ -88,28 +92,37 @@ with tab3:
         value=10
     )
 
-    # Group by masked_card_no and aggregate occurrences and total_amount
-    card_activity = filtered_cards.groupby('masked_card_no').agg({'occurrences': 'sum', 'total_amount': 'sum'})
+    # Group by masked_card_no and merchant_name to aggregate occurrences and total_amount
+    card_activity = filtered_cards.groupby(['masked_card_no', 'merchant_name']).agg({'occurrences': 'sum', 'total_amount': 'sum'}).reset_index()
 
     # Sort and select the cards based on the number of occurrences
     selected_cards = card_activity.nlargest(num_cards_to_show, 'occurrences')
 
-    # Scatter plot with regression line
+    # Clustering (KMeans)
+    X = selected_cards[['occurrences', 'total_amount']]  # Selecting the features for clustering
+    kmeans = KMeans(n_clusters=3, random_state=42)  # Choose the number of clusters (e.g., 3 clusters)
+    selected_cards['cluster'] = kmeans.fit_predict(X)  # Fit and predict clusters
+
+    # Scatter plot with clusters
     fig = px.scatter(
-        selected_cards, x='total_amount', y='occurrences', size='total_amount', color=selected_cards.index,
-        title=f"Cards: Frequency vs Amount max cards = {distinct_cards_count}",
-        trendline="ols"  # Ordinary Least Squares (Linear Regression)
+        selected_cards, x='total_amount', y='occurrences', size='total_amount', color='cluster',
+        title=f"Cards: Frequency vs Amount (Clusters)",
+        labels={'cluster': 'Cluster'},
+        color_continuous_scale='Viridis'  # Optional: Adjust the color scale for better visualization
     )
-    
+
     # Provide a unique key for the plotly_chart
     st.plotly_chart(fig, use_container_width=True, key=f"card_activity_{selected_merchant}")
 
-    # # Display regression summary
-    # X = sm.add_constant(selected_cards['total_amount'])  # Add constant for intercept
-    # y = selected_cards['occurrences']
-    # model = sm.OLS(y, X).fit()
-    # st.text("Regression Summary:")
-    # st.text(model.summary())
+    # Show cluster centers
+    st.write("Cluster Centers (Centroids):")
+    st.write(kmeans.cluster_centers_)
+
+    # Optionally, display the cards and their assigned clusters
+    st.write("Cards with Cluster Assignments:")
+    st.dataframe(selected_cards[['masked_card_no', 'merchant_name', 'occurrences', 'total_amount', 'cluster']])
+
+
 
 with tab4:
     st.subheader("Transaction Data")
